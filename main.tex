@@ -83,7 +83,7 @@ After the introduction of the iconic CRAY-1\cite{b8} machine in 1976, vector pro
 As the demands for multimedia and graphics grew, many commodity microprocessors introduced SIMD extensions to support these computations\cite{b9}. These extensions consist of short vector instructions that operate on packed data in registers. Early implementations used existing microarchitecture with insignificant changes\cite{b12}. They partitioned the ALU to support subword operations, or remapped floating-point registers to new SIMD registers. Those extensions also included MMX\cite{b10} for Intel x86, VIS\cite{b11} for UltraSPARC, and MDMX for MIPS. 
 While overloading registers maintained compatibility with existing OS context switch routines, it also hindered simultaneous use of floating-point and SIMD operations. It increased the complexity of both hardware and software to accommodate shared registers for future extensions. SSE\cite{b13} for x86 and AltiVec\cite{b14} for PowerPC introduced independent 128-bit registers to address this issue. 
 SIMD extensions came with several issues\cite{b15,b16}. Some of these issues still exist these days. The first challenge is data alignment. Hardware needed mechanisms to handle SIMD instructions that accessed data across page boundaries. For software, we had to handle situations where the data length was not a multiple of the vector length, or where unaligned memory accesses could cause significant performance impact. Another issue was that it was difficult to find a general way to optimize codes because optimizations were dependent on the features of each extension. Compilers could not generate efficient vectorization instructions. To fully utilize the power of SIMD, many programmers wrote their vector codes in handwritten assembly. Research\cite{b17} showed that only a small portion of programs executed SIMD calculations, while 75–80% consisted of overhead or supporting instructions. 
-SVE\cite{b18} for ARM introduced several innovations to address these problems. By leaving the vector length as an implementation choice, its program model allowed software to run without needing to recompile to support the available vector length. SVE also introduced the ability to perform predicted operations. This prediction was useful in reducing the overhead and supporting instructions mentioned earlier. Similarly, AVX-512 from x86 also supports predicated instructions. The introduction of first-fault mechanisms enabled fault-tolerant speculative vectorization, suppressing memory faults and indicating which elements were unsuccessfully loaded. The new horizontal operations solved the problems of dependencies across vectors. These designs also improved compiler auto-vectorization. Meanwhile, the RISC-V vector extension introduced a distinct design. Its vector length could dynamically vary at runtime. 
+SVE\cite{b7} for ARM introduced several innovations to address these problems. By leaving the vector length as an implementation choice, its program model allowed software to run without needing to recompile to support the available vector length. SVE also introduced the ability to perform predicted operations. This prediction was useful in reducing the overhead and supporting instructions mentioned earlier. Similarly, AVX-512 from x86 also supports predicated instructions. The introduction of first-fault mechanisms enabled fault-tolerant speculative vectorization, suppressing memory faults and indicating which elements were unsuccessfully loaded. The new horizontal operations solved the problems of dependencies across vectors. These designs also improved compiler auto-vectorization. Meanwhile, the RISC-V vector extension introduced a distinct design. Its vector length could dynamically vary at runtime. 
 In addition to their initial use in multimedia and graphics, vector extensions can enhance applications across various fields, with designs adopting concepts from traditional vector processors, such as variable vector lengths and predicated instructions.
 
 
@@ -109,40 +109,40 @@ III. Analyze the trade-offs in instruction set design.
 (a) x86 AVX vs. ARM SVE
 
 One of the fundamental differences between AVX and SVE lies in their approach to vector width. 
-AVX employs fixed vector widths of 128-bit (AVX), 256-bit (AVX2), and 512-bit (AVX-512) (56†source). 
+AVX employs fixed vector widths of 128-bit (AVX), 256-bit (AVX2), and 512-bit (AVX-512)\cite{b2}. 
 In contrast, SVE supports scalable vector lengths ranging from 128-bit to 2048-bit, 
-allowing runtime adaptation and greater flexibility (64†source). 
+allowing runtime adaptation and greater flexibility\cite{b4}. 
 This scalable approach in SVE enables more efficient use of hardware resources, as the same binary 
 can run on different hardware implementations without modification.
 
-Masking mechanisms further differentiate AVX and SVE. AVX-512 incorporates explicit mask registers (K0-K7) to enable selective operations on vector elements, which enhances performance in specific computational workloads (64†source). However, SVE takes a different approach by utilizing predicate registers for lane masking, which offers more dynamic and flexible control over which elements participate in computation (64†source). This design simplifies compiler optimizations and increases execution efficiency.
+Masking mechanisms further differentiate AVX and SVE. AVX-512 incorporates explicit mask registers (K0-K7) to enable selective operations on vector elements, which enhances performance in specific computational workloads\cite{b2}. However, SVE takes a different approach by utilizing predicate registers for lane masking, which offers more dynamic and flexible control over which elements participate in computation\cite{b5}. This design simplifies compiler optimizations and increases execution efficiency.
 
-Memory access is another crucial aspect where the two architectures diverge. AVX supports explicit gather and scatter operations, but it requires multiple instructions for optimal utilization, making it somewhat complex in certain workloads. In contrast, SVE integrates gather-load and scatter-store operations with predicate-based control, significantly improving memory efficiency (64†source). This built-in flexibility enables better handling of non-contiguous memory accesses, which is particularly beneficial for high-performance computing applications.
+Memory access is another crucial aspect where the two architectures diverge. AVX supports explicit gather and scatter operations, but it requires multiple instructions for optimal utilization, making it somewhat complex in certain workloads\cite{b1}. In contrast, SVE integrates gather-load and scatter-store operations with predicate-based control, significantly improving memory efficiency\cite{b5}. This built-in flexibility enables better handling of non-contiguous memory accesses, which is particularly beneficial for high-performance computing applications.
 
 (b) RISC-V Vector Extensions (RVV)
 
-RISC-V Vector Extensions (RVV) introduce a vector-length-agnostic (VLA) approach similar to SVE, where vector width is hardware-dependent and can scale dynamically(62†source). This feature allows different implementations to optimize vector execution based on available resources, enhancing performance across a variety of hardware configurations.
+RISC-V Vector Extensions (RVV) introduce a vector-length-agnostic (VLA) approach similar to SVE, where vector width is hardware-dependent and can scale dynamically\cite{b6}. This feature allows different implementations to optimize vector execution based on available resources, enhancing performance across a variety of hardware configurations.
 
-Unlike AVX and SVE, which define specific vector widths, RVV provides a high level of customizability. Implementations can define specific vector register widths and instruction subsets, making it highly adaptable for domain-specific applications such as embedded systems and AI accelerators(55†source). This flexibility ensures that RISC-V processors can cater to diverse application needs while maintaining efficiency.
+Unlike AVX and SVE, which define specific vector widths, RVV provides a high level of customizability. Implementations can define specific vector register widths and instruction subsets, making it highly adaptable for domain-specific applications such as embedded systems and AI accelerators\cite{b6}. This flexibility ensures that RISC-V processors can cater to diverse application needs while maintaining efficiency.
 
-Memory access and masking in RVV share similarities with SVE. It supports various access patterns, including strided, indexed, and unit-stride memory operations, with built-in masking mechanisms to control element participation (62†source). This capability enhances the efficiency of vectorized operations and simplifies programming, particularly for workloads that require irregular memory access patterns.
+Memory access and masking in RVV share similarities with SVE. It supports various access patterns, including strided, indexed, and unit-stride memory operations, with built-in masking mechanisms to control element participation\cite{b6}. This capability enhances the efficiency of vectorized operations and simplifies programming, particularly for workloads that require irregular memory access patterns.
 \subsection{Examine architectural design features.}
 (a) Impact of Vector Width on Performance
 
-Increasing vector width significantly boosts computational throughput but also introduces challenges in power consumption and architectural complexity. Studies show that expanding vector width in SVE from 128-bit to 512-bit improves performance by up to 38\% while reducing energy consumption by 23\% (60†source). However, beyond 512-bit, the benefits diminish due to memory bandwidth limitations, which hinder further performance gains(61†source).
+Increasing vector width significantly boosts computational throughput but also introduces challenges in power consumption and architectural complexity. Studies show that expanding vector width in SVE from 128-bit to 512-bit improves performance by up to 38\% while reducing energy consumption by 23\%\cite{b4}. However, beyond 512-bit, the benefits diminish due to memory bandwidth limitations, which hinder further performance gains\cite{b5}.
 
 (b) Hardware Implementation of Variable-Length Vectors
 
-The implementation of vector execution also differs across these architectures. AVX relies on fixed-length execution units, requiring separate ALUs for 128-bit, 256-bit, and 512-bit operations. This design increases chip area and power consumption, particularly when handling mixed-width operations (57†source). In contrast, SVE and RVV utilize a single vector unit that dynamically adapts to available vector width, reducing hardware redundancy and improving efficiency(64†source)
+The implementation of vector execution also differs across these architectures. AVX relies on fixed-length execution units, requiring separate ALUs for 128-bit, 256-bit, and 512-bit operations. This design increases chip area and power consumption, particularly when handling mixed-width operations\cite{b3}. In contrast, SVE and RVV utilize a single vector unit that dynamically adapts to available vector width, reducing hardware redundancy and improving efficiency\cite{b5}
 
 \subsection{ Analyze the trade-offs in instruction set design.}
 (a) Power Consumption
 
-Power efficiency is a critical consideration in vector instruction design. AVX consumes substantial power due to its wide registers and fixed-length execution units. AVX-512, in particular, is known to reduce CPU clock speeds under heavy load to mitigate power draw, which can impact performance in sustained workloads (58†source). On the other hand, SVE and RVV offer dynamic vector length adaptation, enabling better power efficiency by optimizing resource usage based on workload demands (60†source).
+Power efficiency is a critical consideration in vector instruction design. AVX consumes substantial power due to its wide registers and fixed-length execution units. AVX-512, in particular, is known to reduce CPU clock speeds under heavy load to mitigate power draw, which can impact performance in sustained workloads\cite{b3}. On the other hand, SVE and RVV offer dynamic vector length adaptation, enabling better power efficiency by optimizing resource usage based on workload demands\cite{b4}.
 
 (b) Latency and Throughput Considerations
 
-From a latency and throughput perspective, AVX provides high throughput but incurs overhead in mixed-width operations, requiring additional processing steps (56†source). SVE, with its flexible masking and integrated gather/scatter support, reduces latency and improves computational efficiency (64†source). Meanwhile, RVV balances flexibility with instruction complexity, making its performance heavily dependent on specific hardware implementations (62†source).
+From a latency and throughput perspective, AVX provides high throughput but incurs overhead in mixed-width operations, requiring additional processing steps\cite{b1}. SVE, with its flexible masking and integrated gather/scatter support, reduces latency and improves computational efficiency\cite{b5}. Meanwhile, RVV balances flexibility with instruction complexity, making its performance heavily dependent on specific hardware implementations\cite{b6}.
 
 %%% =================================================================
 %%% ======================= Emily Chang =============================
@@ -197,8 +197,9 @@ conditions:
 \bibitem{b4} T. Odajima, Y. Kodama, and M. Sato, "Power Performance Analysis of ARM Scalable Vector Extension", 
 \bibitem{b5} Yu. Kodama, T. Odajima, M. Matsuda, M. Tsuji, J. Lee, and M. Sato, "Preliminary Performance Evaluation of Application Kernels using ARM SVE with Multiple Vector Lengths", in 2017 IEEE International Conference on Cluster Computing (CLUSTER), 2017, pp. [page numbers]. doi: 10.1109/CLUSTER.2017.93.
 \bibitem{b6} E. CUI ,T. LI, and Q. WE, "RISC-V Instruction Set Architecture Extensions: A Survey",  IEEE Access, vol. PP, no. 99, pp. 1-1, Jan. 2023. doi: 10.1109/ACCESS.2023.3246491.
-\bibitem{b7} A. Khadem, D. Fujiki, H. Chen, Y. Gu, N. Talati, S. Mahlke, and R. Das, “Multi-dimensional vector ISA extension for mobile in-cache computing,” arXiv preprint arXiv:2501.09902, 2025. [Online]. Available: https://arxiv.org/abs/2501.09902
+
 %%%=======================================================
+\bibitem{b7} N. Stephens et al., "The ARM Scalable Vector Extension," in IEEE Micro, vol. 37, no. 2, pp. 26-39, Mar.-Apr. 2017, doi: 10.1109/MM.2017.35.
 
 \bibitem{b8} J. Kolodzey, "CRAY-1 Computer Technology," in IEEE Transactions on Components, Hybrids, and Manufacturing Technology, vol. 4, no. 2, pp. 181-186, June 1981, doi: 10.1109/TCHMT.1981.1135787.
 
@@ -220,7 +221,7 @@ conditions:
 
 \bibitem{b17} D. Talla, L. K. John and D. Burger, "Bottlenecks in multimedia processing with SIMD style extensions and architectural enhancements," in IEEE Transactions on Computers, vol. 52, no. 8, pp. 1015-1031, Aug. 2003, doi: 10.1109/TC.2003.1223637.
 
-\bibitem{b18} N. Stephens et al., "The ARM Scalable Vector Extension," in IEEE Micro, vol. 37, no. 2, pp. 26-39, Mar.-Apr. 2017, doi: 10.1109/MM.2017.35.
+
 
 \end{thebibliography}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

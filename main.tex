@@ -149,32 +149,21 @@ From a latency and throughput perspective, AVX provides high throughput but incu
 
 \subsection{Performance and Application Analysis of Vector Instruction Sets}
 
-(a)Vector instruction sets across different domains
+(a)Vector Instruction Sets Across Different Domains
 
-Vector instruction sets play a crucial role in modern computing architectures by enabling parallel data processing, improving computational efficiency, and accelerating various applications. These instruction sets have been widely adopted in high-performance computing (HPC), machine learning, and other computationally intensive domains. For instance, RISC-V Vector Extension (RVV) and Arm Scalable Vector Extension (SVE), provide only one dimensional stride and random memory accesses. While this is sufficient for typical vector engines, it fails to effectively utilize the large Single Instruction, Multiple Data (SIMD) widths of in cache vector engines. This is because mobile data-parallel kernels expose limited parallelism across a single dimension.
+RISC-V Vector Extension (RVV) and Arm Scalable Vector Extension (SVE), provide only one dimensional stride and random memory accesses. While this is sufficient for typical vector engines, it fails to effectively utilize the large Single Instruction, Multiple Data (SIMD) widths of in cache vector engines. This is because mobile data-parallel kernels expose limited parallelism across a single dimension. Therefore, vector instruction sets play a crucial role in modern computing architectures. By enabling parallel data processing, it improves computational efficiency, and accelerating various applications. These instruction sets have been widely adopted in high-performance computing (HPC), machine learning, and other computationally intensive domains \cite{b7}. 
 
-(b)
+For instance, multi-dimensional vector ISA Extension (MVE) for mobile in-cache computing uses dimension-level masked execution to reduce overhead in handling irregular parallelism. Additionally, it abstracts cache geometry and data layout, simplifying programming and enhancing efficiency to achieves high SIMD utilization (60\% vs. 23\% in RVV) and reduces instruction overhead.
 
+(b)Performance Optimization in Different Application Scenarios
 
-\subsection{Guidelines for Determining Authorship}
-IEEE guidelines dictate that authorship should be based on a {\em
-  substantial intellectual contribution}. It is assumed that all
-authors have had a significant role in the creation of an article that
-bears their names. In particular, the authorship credit must be
-reserved only for individuals who have met each of the following
-conditions:
+High-Performance Computing (HPC) provides libraries such as Basic Linear Algebra Subprograms (BLAS) which benefit from optimized vector processing. For instence, LINPACK-PC, a C implementation of the LINPACK benchmark, is available from Netlib9. This benchmark application makes use of several BLAS level 1 and 2 operations. It operates on matrices and vectors of dimensions up to 200x201. LINPACK-PC performs a certain sequence of operations in a loop for 5 seconds, and calculates the achieved MFLOPS from
+the number of loop iterations \cite{b8}. 
 
-\begin{enumerate}
-\item Made a significant intellectual contribution to the theoretical
-  development, system or experimental design, prototype development,
-  and/or the analysis and interpretation of data associated with the
-  work contained in the article;
+(c)Performance Evaluation Methods
 
-\item Contributed to drafting the article or reviewing and/or revising
-  it for intellectual content; and
+Gem5-AVX, an extended version of the Gem5 simulator that enables simulating recent x86 SIMD extensions, especially targeted for high performance computing (HPC). Gem5 is an open-source, event-driven computer architecture simulator used for modeling and simulating modern computer systems. Such as Intel AVX enhances the performance of SIMD instruction sets in prior generations by using a new instruction encoding scheme called the vector extension prefix (VEX). And it provides improved features that surpass those offered by previous 128-bit SIMD extentions \cite{b9}.
 
-\item Approved the final version of the article as accepted for publication, including references.
-\end{enumerate}
 
 
 %%% ==============================================================
@@ -220,6 +209,14 @@ conditions:
 \bibitem{b16} M. Hassaballah, S. Omran and Y. B. Mahdy, "A Review of SIMD Multimedia Extensions and their Usage in Scientific and Engineering Applications," in The Computer Journal, vol. 51, no. 6, pp. 630-649, Nov. 2008, doi: 10.1093/comjnl/bxm099.
 
 \bibitem{b17} D. Talla, L. K. John and D. Burger, "Bottlenecks in multimedia processing with SIMD style extensions and architectural enhancements," in IEEE Transactions on Computers, vol. 52, no. 8, pp. 1015-1031, Aug. 2003, doi: 10.1109/TC.2003.1223637.
+
+%%% ==================== Emily Chang ====================
+
+\bibitem{b18} A. Khadem, D. Fujiki, H. Chen, Y. Gu, N. Talati, S. Mahlke, and R. Das, “Multi-dimensional vector ISA extension for mobile in-cache computing,” arXiv preprint arXiv:2501.09902, 2025. [Online]. Available: https://arxiv.org/abs/2501.09902
+
+\bibitem{b19} C. Fibich et al., "Evaluation of Open-Source Linear Algebra Libraries in Embedded Applications," 2019 8th Mediterranean Conference on Embedded Computing (MECO), Budva, Montenegro, 2019, pp. 1-6, doi: 10.1109/MECO.2019.8760041.
+
+\bibitem{b20} S. Lee, Y. Kim, D. Nam and J. Kim, "Gem5-AVX: Extension of the Gem5 Simulator to Support AVX Instruction Sets," in IEEE Access, vol. 12, pp. 20767-20778, 2024, doi: 10.1109/ACCESS.2024.3359296.
 
 
 

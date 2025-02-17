@@ -79,30 +79,13 @@ College Station, TX \\
 \end{abstract}
 %%% ====================== Shao-Chien Chiang =====================
 \section{Introduction}
+After the introduction of the iconic CRAY-1\cite{b8} machine in 1976, vector processors dominated supercomputers, but declined in the 1990s. However, their design principles continued to influence future ISA extensions. 
+As the demands for multimedia and graphics grew, many commodity microprocessors introduced SIMD extensions to support these computations\cite{b9}. These extensions consist of short vector instructions that operate on packed data in registers. Early implementations used existing microarchitecture with insignificant changes\cite{b12}. They partitioned the ALU to support subword operations, or remapped floating-point registers to new SIMD registers. Those extensions also included MMX\cite{b10} for Intel x86, VIS\cite{b11} for UltraSPARC, and MDMX for MIPS. 
+While overloading registers maintained compatibility with existing OS context switch routines, it also hindered simultaneous use of floating-point and SIMD operations. It increased the complexity of both hardware and software to accommodate shared registers for future extensions. SSE\cite{b13} for x86 and AltiVec\cite{b14} for PowerPC introduced independent 128-bit registers to address this issue. 
+SIMD extensions came with several issues\cite{b15,b16}. Some of these issues still exist these days. The first challenge is data alignment. Hardware needed mechanisms to handle SIMD instructions that accessed data across page boundaries. For software, we had to handle situations where the data length was not a multiple of the vector length, or where unaligned memory accesses could cause significant performance impact. Another issue was that it was difficult to find a general way to optimize codes because optimizations were dependent on the features of each extension. Compilers could not generate efficient vectorization instructions. To fully utilize the power of SIMD, many programmers wrote their vector codes in handwritten assembly. Research\cite{b17} showed that only a small portion of programs executed SIMD calculations, while 75–80% consisted of overhead or supporting instructions. 
+SVE\cite{b18} for ARM introduced several innovations to address these problems. By leaving the vector length as an implementation choice, its program model allowed software to run without needing to recompile to support the available vector length. SVE also introduced the ability to perform predicted operations. This prediction was useful in reducing the overhead and supporting instructions mentioned earlier. Similarly, AVX-512 from x86 also supports predicated instructions. The introduction of first-fault mechanisms enabled fault-tolerant speculative vectorization, suppressing memory faults and indicating which elements were unsuccessfully loaded. The new horizontal operations solved the problems of dependencies across vectors. These designs also improved compiler auto-vectorization. Meanwhile, the RISC-V vector extension introduced a distinct design. Its vector length could dynamically vary at runtime. 
+In addition to their initial use in multimedia and graphics, vector extensions can enhance applications across various fields, with designs adopting concepts from traditional vector processors, such as variable vector lengths and predicated instructions.
 
-% This document provides instructions for submitting papers to ISCA
-% 2023. In an effort to respect the efforts of reviewers and in the
-% interest of fairness to all prospective authors, we request that all
-% submissions to ISCA 2023 follow the formatting and submission rules
-% detailed below. Submissions that violate these instructions may not be
-% reviewed, at the discretion of the program chair, in order to
-% maintain a review process that is fair to all potential authors. This
-% document is itself formatted using the ISCA 2023 submission format. The
-% content of this document mirrors that of the submission instructions
-% that appear on the conference website. All questions regarding paper
-% formatting and submission should be directed to the program chair.
-
-% \subsection{Format Highlights}
-
-% Here are the format highlights in a nutshell:
-% \begin{itemize}
-% \item Paper must be submitted in printable PDF format.
-% \item Text must be in a minimum 10pt Times font, see Table~\ref{table:formatting}.
-% \item Papers must be at most 11 pages (not including references) in a
-%   two-column format.
-% \item No page limit for references.
-% \item Each reference must specify {\em all} authors, i.e., no {\em et al.}
-% \end{itemize}
 
 %%% ===============================================================
 %%% ===================== Hsin-An Ko ==============================
@@ -216,6 +199,28 @@ conditions:
 \bibitem{b6} E. CUI ,T. LI, and Q. WE, "RISC-V Instruction Set Architecture Extensions: A Survey",  IEEE Access, vol. PP, no. 99, pp. 1-1, Jan. 2023. doi: 10.1109/ACCESS.2023.3246491.
 \bibitem{b7} A. Khadem, D. Fujiki, H. Chen, Y. Gu, N. Talati, S. Mahlke, and R. Das, “Multi-dimensional vector ISA extension for mobile in-cache computing,” arXiv preprint arXiv:2501.09902, 2025. [Online]. Available: https://arxiv.org/abs/2501.09902
 %%%=======================================================
+
+\bibitem{b8} J. Kolodzey, "CRAY-1 Computer Technology," in IEEE Transactions on Components, Hybrids, and Manufacturing Technology, vol. 4, no. 2, pp. 181-186, June 1981, doi: 10.1109/TCHMT.1981.1135787.
+
+\bibitem{b9} Roger Espasa, Mateo Valero, and James E. Smith. 1998. Vector architectures: past, present and future. In Proceedings of the 12th international conference on Supercomputing (ICS '98). Association for Computing Machinery, New York, NY, USA, 425–432. https://doi.org/10.1145/277830.277935
+
+\bibitem{b10} A. Peleg and U. Weiser, "MMX technology extension to the Intel architecture," in IEEE Micro, vol. 16, no. 4, pp. 42-50, Aug. 1996, doi: 10.1109/40.526924.
+
+\bibitem{b11} L. Kohn, G. Maturana, M. Tremblay, A. Prabhu and G. Zyner, "The visual instruction set (VIS) in UltraSPARC," Digest of Papers. COMPCON'95. Technologies for the Information Superhighway, San Francisco, CA, USA, 1995, pp. 462-469, doi: 10.1109/CMPCON.1995.512423.
+
+\bibitem{b12} R. B. Lee, "Multimedia extensions for general-purpose processors," 1997 IEEE Workshop on Signal Processing Systems. SiPS 97 Design and Implementation formerly VLSI Signal Processing, Leicester, UK, 1997, pp. 9-23, doi: 10.1109/SIPS.1997.625683.
+
+\bibitem{b13} S. Thakkur and T. Huff, "Internet Streaming SIMD Extensions," in Computer, vol. 32, no. 12, pp. 26-34, Dec. 1999, doi: 10.1109/2.809248.
+
+\bibitem{b14} K. Diefendorff, P. K. Dubey, R. Hochsprung and H. Scale, "AltiVec extension to PowerPC accelerates media processing," in IEEE Micro, vol. 20, no. 2, pp. 85-95, March-April 2000, doi: 10.1109/40.848475.
+
+\bibitem{b15} T. M. Conte et al., "Challenges to combining general-purpose and multimedia processors," in Computer, vol. 30, no. 12, pp. 33-37, Dec. 1997, doi: 10.1109/2.642799.
+
+\bibitem{b16} M. Hassaballah, S. Omran and Y. B. Mahdy, "A Review of SIMD Multimedia Extensions and their Usage in Scientific and Engineering Applications," in The Computer Journal, vol. 51, no. 6, pp. 630-649, Nov. 2008, doi: 10.1093/comjnl/bxm099.
+
+\bibitem{b17} D. Talla, L. K. John and D. Burger, "Bottlenecks in multimedia processing with SIMD style extensions and architectural enhancements," in IEEE Transactions on Computers, vol. 52, no. 8, pp. 1015-1031, Aug. 2003, doi: 10.1109/TC.2003.1223637.
+
+\bibitem{b18} N. Stephens et al., "The ARM Scalable Vector Extension," in IEEE Micro, vol. 37, no. 2, pp. 26-39, Mar.-Apr. 2017, doi: 10.1109/MM.2017.35.
 
 \end{thebibliography}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

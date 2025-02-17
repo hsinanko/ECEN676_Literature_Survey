@@ -1,0 +1,224 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage[hyphens]{url}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Ensure letter paper
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
+
+%%%%%%%%%%%---SETME-----%%%%%%%%%%%%%
+\newcommand{\iscasubmissionnumber}{NaN}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagenumbering{arabic}
+
+%%%%%%%%%%%---SETME-----%%%%%%%%%%%%%
+\title{Literature Survey: Vector Instruction Sets
+}
+\author{\normalsize{ISCA 2023 Submission
+    \textbf{\#\iscasubmissionnumber} -- Confidential Draft -- Do NOT Distribute!!}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\author{\IEEEauthorblockN{1\textsuperscript{st} Shao-Chien Chiang}
+\IEEEauthorblockA{\textit{Dept. of Electrical and Computer Engr.} \\
+\textit{Texas A\&M University}\\
+College Station, TX \\
+}
+\\
+
+\IEEEauthorblockN{3\textsuperscript{rd} Emily Chang}
+\IEEEauthorblockA{\textit{Dept. of Electrical and Computer Engr.} \\
+\textit{Texas A\&M University}\\
+College Station, TX \\
+}
+\and
+
+\IEEEauthorblockN{2\textsuperscript{nd} Hsin-An Ko}
+\IEEEauthorblockA{\textit{Dept. of Electrical and Computer Engr.} \\
+\textit{Texas A\&M University}\\
+College Station, TX \\
+}
+\\
+\IEEEauthorblockN{4\textsuperscript{th} Pin-Tzu Huang}
+\IEEEauthorblockA{\textit{Dept. of Electrical and Computer Engr.} \\
+\textit{Texas A\&M University}\\
+College Station, TX \\
+}
+}
+
+
+\maketitle
+\thispagestyle{plain}
+\pagestyle{plain}
+
+
+
+%%%%%% -- PAPER CONTENT STARTS-- %%%%%%%%
+
+\begin{abstract}
+
+% This document is intended to serve as a sample for submissions to the
+% 50th IEEE/ACM International Symposium on Computer Architecture (ISCA),
+% June 17--23, 2023 in Orlando, FL, USA. This document provides
+% guidelines that authors should follow when submitting papers to the
+% conference. This format is derived from the IEEE conference template IEEEtran.cls
+% file with the objective of keeping the submission similar to the final
+% version, i.e., the IEEEtran.cls template will also be used for
+% the camera-ready version.
+
+\end{abstract}
+%%% ====================== Shao-Chien Chiang =====================
+\section{Introduction}
+
+% This document provides instructions for submitting papers to ISCA
+% 2023. In an effort to respect the efforts of reviewers and in the
+% interest of fairness to all prospective authors, we request that all
+% submissions to ISCA 2023 follow the formatting and submission rules
+% detailed below. Submissions that violate these instructions may not be
+% reviewed, at the discretion of the program chair, in order to
+% maintain a review process that is fair to all potential authors. This
+% document is itself formatted using the ISCA 2023 submission format. The
+% content of this document mirrors that of the submission instructions
+% that appear on the conference website. All questions regarding paper
+% formatting and submission should be directed to the program chair.
+
+% \subsection{Format Highlights}
+
+% Here are the format highlights in a nutshell:
+% \begin{itemize}
+% \item Paper must be submitted in printable PDF format.
+% \item Text must be in a minimum 10pt Times font, see Table~\ref{table:formatting}.
+% \item Papers must be at most 11 pages (not including references) in a
+%   two-column format.
+% \item No page limit for references.
+% \item Each reference must specify {\em all} authors, i.e., no {\em et al.}
+% \end{itemize}
+
+%%% ===============================================================
+%%% ===================== Hsin-An Ko ==============================
+\section{Architecture Design and Implementation}
+Vector instruction sets play a crucial role in modern computing architectures by 
+enabling efficient parallel processing. In today's mainstream computer architectures, 
+vector instruction sets can be broadly categorized into three major types: 
+the AVX instruction set, which was introduced early and continues to be updated 
+for the x86 architecture; the more recently introduced SVE instruction set for the ARM architecture; 
+and the vector instruction set provided by RISC-V, the most popular open architecture, 
+enabling broader application scenarios.
+
+The following discussion will be divided into three sections:
+
+I. Compare the design of vector instruction sets across different architectures.
+II. Examine architectural design features.
+III. Analyze the trade-offs in instruction set design.
+
+
+\subsection{Compare the design of vector instruction sets across different architectures.}
+(a) x86 AVX vs. ARM SVE
+
+One of the fundamental differences between AVX and SVE lies in their approach to vector width. 
+AVX employs fixed vector widths of 128-bit (AVX), 256-bit (AVX2), and 512-bit (AVX-512) (56†source). 
+In contrast, SVE supports scalable vector lengths ranging from 128-bit to 2048-bit, 
+allowing runtime adaptation and greater flexibility (64†source). 
+This scalable approach in SVE enables more efficient use of hardware resources, as the same binary 
+can run on different hardware implementations without modification.
+
+Masking mechanisms further differentiate AVX and SVE. AVX-512 incorporates explicit mask registers (K0-K7) to enable selective operations on vector elements, which enhances performance in specific computational workloads (64†source). However, SVE takes a different approach by utilizing predicate registers for lane masking, which offers more dynamic and flexible control over which elements participate in computation (64†source). This design simplifies compiler optimizations and increases execution efficiency.
+
+Memory access is another crucial aspect where the two architectures diverge. AVX supports explicit gather and scatter operations, but it requires multiple instructions for optimal utilization, making it somewhat complex in certain workloads. In contrast, SVE integrates gather-load and scatter-store operations with predicate-based control, significantly improving memory efficiency (64†source). This built-in flexibility enables better handling of non-contiguous memory accesses, which is particularly beneficial for high-performance computing applications.
+
+(b) RISC-V Vector Extensions (RVV)
+
+RISC-V Vector Extensions (RVV) introduce a vector-length-agnostic (VLA) approach similar to SVE, where vector width is hardware-dependent and can scale dynamically(62†source). This feature allows different implementations to optimize vector execution based on available resources, enhancing performance across a variety of hardware configurations.
+
+Unlike AVX and SVE, which define specific vector widths, RVV provides a high level of customizability. Implementations can define specific vector register widths and instruction subsets, making it highly adaptable for domain-specific applications such as embedded systems and AI accelerators(55†source). This flexibility ensures that RISC-V processors can cater to diverse application needs while maintaining efficiency.
+
+Memory access and masking in RVV share similarities with SVE. It supports various access patterns, including strided, indexed, and unit-stride memory operations, with built-in masking mechanisms to control element participation (62†source). This capability enhances the efficiency of vectorized operations and simplifies programming, particularly for workloads that require irregular memory access patterns.
+\subsection{Examine architectural design features.}
+(a) Impact of Vector Width on Performance
+
+Increasing vector width significantly boosts computational throughput but also introduces challenges in power consumption and architectural complexity. Studies show that expanding vector width in SVE from 128-bit to 512-bit improves performance by up to 38\% while reducing energy consumption by 23\% (60†source). However, beyond 512-bit, the benefits diminish due to memory bandwidth limitations, which hinder further performance gains(61†source).
+
+(b) Hardware Implementation of Variable-Length Vectors
+
+The implementation of vector execution also differs across these architectures. AVX relies on fixed-length execution units, requiring separate ALUs for 128-bit, 256-bit, and 512-bit operations. This design increases chip area and power consumption, particularly when handling mixed-width operations (57†source). In contrast, SVE and RVV utilize a single vector unit that dynamically adapts to available vector width, reducing hardware redundancy and improving efficiency(64†source)
+
+\subsection{ Analyze the trade-offs in instruction set design.}
+(a) Power Consumption
+
+Power efficiency is a critical consideration in vector instruction design. AVX consumes substantial power due to its wide registers and fixed-length execution units. AVX-512, in particular, is known to reduce CPU clock speeds under heavy load to mitigate power draw, which can impact performance in sustained workloads (58†source). On the other hand, SVE and RVV offer dynamic vector length adaptation, enabling better power efficiency by optimizing resource usage based on workload demands (60†source).
+
+(b) Latency and Throughput Considerations
+
+From a latency and throughput perspective, AVX provides high throughput but incurs overhead in mixed-width operations, requiring additional processing steps (56†source). SVE, with its flexible masking and integrated gather/scatter support, reduces latency and improves computational efficiency (64†source). Meanwhile, RVV balances flexibility with instruction complexity, making its performance heavily dependent on specific hardware implementations (62†source).
+
+%%% =================================================================
+%%% ======================= Emily Chang =============================
+
+\subsection{Performance and Application Analysis of Vector Instruction Sets}
+
+(a)Vector instruction sets across different domains
+
+Vector instruction sets play a crucial role in modern computing architectures by enabling parallel data processing, improving computational efficiency, and accelerating various applications. These instruction sets have been widely adopted in high-performance computing (HPC), machine learning, and other computationally intensive domains. For instance, RISC-V Vector Extension (RVV) and Arm Scalable Vector Extension (SVE), provide only one dimensional stride and random memory accesses. While this is sufficient for typical vector engines, it fails to effectively utilize the large Single Instruction, Multiple Data (SIMD) widths of in cache vector engines. This is because mobile data-parallel kernels expose limited parallelism across a single dimension.
+
+(b)
+
+
+\subsection{Guidelines for Determining Authorship}
+IEEE guidelines dictate that authorship should be based on a {\em
+  substantial intellectual contribution}. It is assumed that all
+authors have had a significant role in the creation of an article that
+bears their names. In particular, the authorship credit must be
+reserved only for individuals who have met each of the following
+conditions:
+
+\begin{enumerate}
+\item Made a significant intellectual contribution to the theoretical
+  development, system or experimental design, prototype development,
+  and/or the analysis and interpretation of data associated with the
+  work contained in the article;
+
+\item Contributed to drafting the article or reviewing and/or revising
+  it for intellectual content; and
+
+\item Approved the final version of the article as accepted for publication, including references.
+\end{enumerate}
+
+
+%%% ==============================================================
+%%% ===================== Pin-Tzu Huang ==========================
+
+
+
+
+
+
+%%%%%%% -- PAPER CONTENT ENDS -- %%%%%%%%
+
+
+%%%%%%%%% -- BIB STYLE AND FILE -- %%%%%%%%
+\begin{thebibliography}{00}
+%%% ==================== Hsin-An Ko ====================
+\bibitem{b1} H. Amiri and A. Shahbahrami, “SIMD programming using Intel vector extensions,” J. Parallel Distrib. Comput., vol. 135, pp. 83–100, Jan. 2020. doi: 10.1016/j.jpdc.2019.09.012.
+\bibitem{b2} D. Kusswurm, "Modern X86 Assembly Language Programming: Covers X86 64-bit, AVX, AVX2, and AVX-512", Berkeley, CA: Apress, 2018. doi: 10.1007/978-1-4842-3005-6.
+\bibitem{b3} P. Gepner, V. Gamayunov, and D. L. Fraser, "Early performance evaluation of AVX for HPC", International Conference on Computational Science, ICCS 2011.
+\bibitem{b4} T. Odajima, Y. Kodama, and M. Sato, "Power Performance Analysis of ARM Scalable Vector Extension", 
+\bibitem{b5} Yu. Kodama, T. Odajima, M. Matsuda, M. Tsuji, J. Lee, and M. Sato, "Preliminary Performance Evaluation of Application Kernels using ARM SVE with Multiple Vector Lengths", in 2017 IEEE International Conference on Cluster Computing (CLUSTER), 2017, pp. [page numbers]. doi: 10.1109/CLUSTER.2017.93.
+\bibitem{b6} E. CUI ,T. LI, and Q. WE, "RISC-V Instruction Set Architecture Extensions: A Survey",  IEEE Access, vol. PP, no. 99, pp. 1-1, Jan. 2023. doi: 10.1109/ACCESS.2023.3246491.
+\bibitem{b7} A. Khadem, D. Fujiki, H. Chen, Y. Gu, N. Talati, S. Mahlke, and R. Das, “Multi-dimensional vector ISA extension for mobile in-cache computing,” arXiv preprint arXiv:2501.09902, 2025. [Online]. Available: https://arxiv.org/abs/2501.09902
+%%%=======================================================
+
+\end{thebibliography}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
